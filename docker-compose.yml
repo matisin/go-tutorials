@@ -21,41 +21,42 @@ services:
       - 5432:5432
     volumes:
       - db-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  orcherstator-api:
-  # ports:
-    #   - 3001:3000
-    env_file:
-      - .env.local
-    build:
-      context: ./orchestrator-api
-      target: production
-      dockerfile: Dockerfile
-    # environment:
-    #  - BUILD=dev
-    volumes:
-      - ./orchestrator-api/src:/workspace/src
-    restart: always
-    depends_on:
-      - companies-api
-      - rabbitmq
-      - kong
-  database-api:
-    # ports:
-    #   - 3002:3000
-    env_file:
-      - .env.local
-    build:
-      context: ./database-api
-      # target: dev
-      dockerfile: Dockerfile
-    # environment:
-    #  - BUILD=dev
-    volumes:
-      - ./database-api/src:/workspace/src
-    restart: always
-    depends_on:
-      - db
+  # orcherstator-api:
+  # # ports:
+  #   #   - 3001:3000
+  #   env_file:
+  #     - .env.local
+  #   build:
+  #     context: ./orchestrator-api
+  #     target: production
+  #     dockerfile: Dockerfile
+  #   # environment:
+  #   #  - BUILD=dev
+  #   volumes:
+  #     - ./orchestrator-api/src:/workspace/src
+  #   restart: always
+  #   depends_on:
+  #     - companies-api
+  #     - rabbitmq
+  #     - kong
+  # database-api:
+  #   # ports:
+  #   #   - 3002:3000
+  #   env_file:
+  #     - .env.local
+  #   build:
+  #     context: ./database-api
+  #     # target: dev
+  #     dockerfile: Dockerfile
+  #   # environment:
+  #   #  - BUILD=dev
+  #   volumes:
+  #     - ./database-api/src:/workspace/src
+  #   restart: always
+  #   depends_on:
+  #     - db
 volumes:
   db-data:
   odoo-web-data:
