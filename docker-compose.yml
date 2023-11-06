@@ -1,0 +1,61 @@
+version: "3.9"
+services:
+  # kong:
+  #   ports:
+  #     - 8000:8000
+  #   image: kong:3.1.1-alpine
+  #   environment:
+  #     KONG_DATABASE: off
+  #     KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+  #     KONG_PLUGINS: custom-auth
+  #   volumes:
+  #     - ./kong/kong.yml:/etc/kong/kong.yml
+  #     - ./kong/authKongPlugin.lua:/usr/local/share/lua/5.1/kong/plugins/custom-auth/handler.lua
+  #     - ./kong/schema.lua:/usr/local/share/lua/5.1/kong/plugins/custom-auth/schema.lua
+  db:
+    image: postgres:14.7
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  orcherstator-api:
+  # ports:
+    #   - 3001:3000
+    env_file:
+      - .env.local
+    build:
+      context: ./orchestrator-api
+      target: production
+      dockerfile: Dockerfile
+    # environment:
+    #  - BUILD=dev
+    volumes:
+      - ./orchestrator-api/src:/workspace/src
+    restart: always
+    depends_on:
+      - companies-api
+      - rabbitmq
+      - kong
+  database-api:
+    # ports:
+    #   - 3002:3000
+    env_file:
+      - .env.local
+    build:
+      context: ./database-api
+      # target: dev
+      dockerfile: Dockerfile
+    # environment:
+    #  - BUILD=dev
+    volumes:
+      - ./database-api/src:/workspace/src
+    restart: always
+    depends_on:
+      - db
+volumes:
+  db-data:
+  odoo-web-data:
