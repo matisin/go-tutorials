@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"database-api/config"
+	geographicEntities "database-api/domains/geographic/entities"
 	userEntities "database-api/domains/users/entities"
 
 	"log"
@@ -15,6 +16,14 @@ import (
 var (
 	db *gorm.DB
 )
+
+// func runMigrations() {
+// 	dir := "db/migrations"
+// 	command := "up"
+// 	if err := goose.Run(command, dbHandle, dir); err != nil {
+// 		log.Fatalf("goose run: %v", err)
+// 	}
+// }
 
 func InitDB() (*gorm.DB, error) {
 
@@ -33,18 +42,14 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	log.Println("Empezando migración de entidades")
-	err = db.AutoMigrate(
-		&userEntities.Module{},
-		&userEntities.Action{},
-		&userEntities.Profile{},
-		&userEntities.User{},
-		&userEntities.Session{},
-		&userEntities.Audit{},
-		&userEntities.Group{},
-		&userEntities.Permission{},
-		&userEntities.Resource{},
-	)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Println("Empezando automigración de entidades")
+
+	models := append(userEntities.Models, geographicEntities.Models...)
+	err = db.AutoMigrate(models...)
 	if err != nil {
 		return nil, err
 	}

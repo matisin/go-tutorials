@@ -2,21 +2,18 @@ package users
 
 import (
 	"database-api/domains/users/entities"
-	"log"
 
 	"github.com/gin-gonic/gin"
 )
 
 func CreateController(c *gin.Context) {
-	var userData entities.User
-	if err := c.BindJSON(&userData); err != nil {
+	var data entities.User
+	if err := c.BindJSON(&data); err != nil {
 		c.JSON(400, gin.H{"error": "Datos de usuario no válidos"})
 		return
 	}
 
-	log.Println(userData)
-
-	newUser, err := CreateService(userData)
+	newUser, err := CreateService(data)
 	if err != nil {
 		c.JSON(500, gin.H{"error": "No se pudo crear el usuario"})
 		return
@@ -35,4 +32,15 @@ func FindOneController(c *gin.Context) {
 	}
 
 	c.JSON(200, fetchedUser)
+}
+
+func FindAllController(c *gin.Context) {
+
+	fetchedUsers, err := FindAllService()
+	if err != nil {
+		c.JSON(404, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
+
+	c.JSON(200, fetchedUsers)
 }

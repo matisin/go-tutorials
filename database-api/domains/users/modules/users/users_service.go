@@ -30,3 +30,14 @@ func FindOneService(ID string) (entities.User, error) {
 
 	return user, nil
 }
+
+func FindAllService() ([]entities.User, error) {
+	var users []entities.User
+	db := db.GetDBInstance()
+	result := db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return users, nil
+}
