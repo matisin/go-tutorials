@@ -11,7 +11,7 @@ import (
 func CreateController(ctx *gin.Context) {
 	var user entities.User
 	if err := ctx.BindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid.Error()})
 		return
 	}
 
@@ -19,7 +19,7 @@ func CreateController(ctx *gin.Context) {
 	if err != nil {
 		switch {
 		default:
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
 		}
 		return
 	}
@@ -61,7 +61,7 @@ func UpdateOneController(ctx *gin.Context) {
 
 	var user entities.User
 	if err := ctx.BindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid.Error()})
 		return
 	}
 	updatedUser, err := UpdateOneService(ID, user)

@@ -16,7 +16,10 @@ func CreateService(user entities.User) (entities.User, error) {
 	result := db.Create(&user)
 
 	if result.Error != nil {
-		return entities.User{}, result.Error
+		switch {
+		default:
+			return entities.User{}, ErrInternalServer
+		}
 	}
 
 	return user, nil
