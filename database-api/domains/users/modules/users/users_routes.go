@@ -8,7 +8,7 @@ func UseRoutes(r *gin.Engine) {
 	userGroup := r.Group("/users")
 	{
 		userGroup.POST("/", CreateController)
-		userGroup.GET("/", FindAllController)
+		userGroup.GET("/", FindController)
 		userGroup.GET("/id/:id", FindOneController)
 		userGroup.PUT("/id/:id", UpdateOneController)
 		userGroup.DELETE("/id/:id", DeleteOneController)

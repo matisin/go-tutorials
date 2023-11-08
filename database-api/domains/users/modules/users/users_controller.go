@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database-api/db"
 	"database-api/domains/users/entities"
 	"errors"
 	"net/http"
@@ -46,8 +47,14 @@ func FindOneController(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, fetchedUser)
 }
 
-func FindAllController(ctx *gin.Context) {
-	fetchedUsers, err := FindAllService()
+func FindController(ctx *gin.Context) {
+	queryParams, err := db.BindGormQuery(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
+		return
+	}
+
+	fetchedUsers, err := FindService(queryParams)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
 		return

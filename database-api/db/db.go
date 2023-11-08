@@ -7,8 +7,6 @@ import (
 	geographicEntities "database-api/domains/geographic/entities"
 	userEntities "database-api/domains/users/entities"
 
-	"log"
-
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -16,14 +14,6 @@ import (
 var (
 	db *gorm.DB
 )
-
-// func runMigrations() {
-// 	dir := "db/migrations"
-// 	command := "up"
-// 	if err := goose.Run(command, dbHandle, dir); err != nil {
-// 		log.Fatalf("goose run: %v", err)
-// 	}
-// }
 
 func InitDB() (*gorm.DB, error) {
 
@@ -42,19 +32,14 @@ func InitDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
+	err = userEntities.AutoMigrateEntities(db)
 	if err != nil {
 		return nil, err
 	}
-
-	log.Println("Empezando automigración de entidades")
-
-	models := append(userEntities.Models, geographicEntities.Models...)
-	err = db.AutoMigrate(models...)
+	err = geographicEntities.AutoMigrateEntities(db)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Migración finalizada con éxito")
-
 	return db, nil
 }
 
