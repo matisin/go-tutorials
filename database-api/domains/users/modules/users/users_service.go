@@ -4,7 +4,6 @@ import (
 	"database-api/db"
 	"database-api/domains/users/entities"
 	"errors"
-	"log"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -51,7 +50,6 @@ func FindOneService(ID string) (entities.User, error) {
 func FindService(query db.QueryParams) ([]entities.User, error) {
 	var users []entities.User
 	db := db.GetDBInstance()
-	log.Println(query)
 	db = query.GetQuery(db)
 
 	result := db.Find(&users)

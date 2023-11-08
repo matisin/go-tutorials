@@ -64,14 +64,14 @@ func FindController(ctx *gin.Context) {
 }
 
 func UpdateOneController(ctx *gin.Context) {
-	ID := ctx.Param("id")
+	id := ctx.Param("id")
 
 	var user entities.User
 	if err := ctx.BindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid.Error()})
 		return
 	}
-	updatedUser, err := UpdateOneService(ID, user)
+	updatedUser, err := UpdateOneService(id, user)
 
 	if err != nil {
 		switch {

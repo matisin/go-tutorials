@@ -7,7 +7,7 @@ import (
 )
 
 func AutoMigrateEntities(db *gorm.DB) error {
-	log.Println("Starting automigration of entities of users domain")
+	log.Println("Starting automigration of entities of geographic domain")
 
 	err := db.AutoMigrate(
 		&Country{},
@@ -17,6 +17,6 @@ func AutoMigrateEntities(db *gorm.DB) error {
 	if err != nil {
 		return err
 	}
-	log.Println("Succesful automigration of users domain")
+	log.Println("Succesful automigration of geographic domain")
 	return nil
 }

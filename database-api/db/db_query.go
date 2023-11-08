@@ -2,8 +2,6 @@ package db
 
 import (
 	"errors"
-	"log"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -14,28 +12,24 @@ type QueryParams struct {
 	Where     map[string]string `form:"where"`
 	OrWhere   map[string]string `form:"orwhere"`
 	Order     map[string]string `form:"order"`
-	Relations map[string]string `form:"relations"`
+	Relations []string          `form:"relations"`
 	Limit     int               `form:"limit"`
 	Offset    int               `form:"offset"`
 	Cache     bool              `form:"cache"`
 }
 
 func BindGormQuery(ctx *gin.Context) (QueryParams, error) {
-	order := ctx.QueryMap("order")
-	relations := ctx.QueryMap("relations")
-	where := ctx.QueryMap("where")
-	orWhere := ctx.QueryMap("orwhere")
 
 	var queryParams QueryParams
 
-	if err := ctx.ShouldBindQuery(&queryParams); err != nil {
+	if err := ctx.BindQuery(&queryParams); err != nil {
 		return QueryParams{}, errors.New("unsupported operation")
 	}
+	order := ctx.QueryMap("order")
+	where := ctx.QueryMap("where")
+	orWhere := ctx.QueryMap("orwhere")
 	if order != nil {
 		queryParams.Order = order
-	}
-	if relations != nil {
-		queryParams.Relations = relations
 	}
 	if where != nil {
 		queryParams.Where = where
@@ -46,46 +40,38 @@ func BindGormQuery(ctx *gin.Context) (QueryParams, error) {
 	return queryParams, nil
 }
 
-func (q *QueryParams) GetQuery(db *gorm.DB) *gorm.DB {
-	log.Println(q.Where)
-	if q.Where != nil {
-		for key, value := range q.Where {
+func (query *QueryParams) GetQuery(db *gorm.DB) *gorm.DB {
+	if query.Where != nil {
+		for key, value := range query.Where {
 			db = db.Where(key, value)
 		}
 	}
-	if q.OrWhere != nil {
-		for key, value := range q.OrWhere {
+	if query.OrWhere != nil {
+		for key, value := range query.OrWhere {
 			db = db.Or(key, value)
 		}
 	}
-	if q.Order != nil {
-		for key, value := range q.Order {
+	if query.Order != nil {
+		for key, value := range query.Order {
 			db = db.Order(key + " " + value)
 		}
 	}
-
-	if q.Offset != 0 {
-		db = db.Offset(q.Offset)
+	if query.Offset != 0 {
+		db = db.Offset(query.Offset)
 	}
 
-	if q.Limit != 0 {
-		db = db.Limit(q.Limit)
+	if query.Limit != 0 {
+		db = db.Limit(query.Limit)
 	}
 
-	if q.Select != nil {
-		if q.Select != nil {
-			db = db.Select(q.Select)
+	if query.Select != nil {
+		if query.Select != nil {
+			db = db.Select(query.Select)
 		}
 	}
-	if q.Relations != nil {
-		for field, value := range q.Relations {
-			boolValue, err := strconv.ParseBool(value)
-			if err != nil {
-				log.Fatal(err)
-			}
-			if boolValue {
-				db = db.Joins(field)
-			}
+	if query.Relations != nil {
+		for _, s := range query.Relations {
+			db = db.Joins(s)
 		}
 	}
 	return db
