@@ -2,45 +2,99 @@ package users
 
 import (
 	"database-api/domains/users/entities"
+	"errors"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CreateController(c *gin.Context) {
-	var data entities.User
-	if err := c.BindJSON(&data); err != nil {
-		c.JSON(400, gin.H{"error": "Datos de usuario no válidos"})
+func CreateController(ctx *gin.Context) {
+	var user entities.User
+	if err := ctx.BindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid})
 		return
 	}
 
-	newUser, err := CreateService(data)
+	userCreated, err := CreateService(user)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "No se pudo crear el usuario"})
+		switch {
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer})
+		}
 		return
 	}
 
-	c.JSON(201, newUser)
+	ctx.JSON(http.StatusCreated, userCreated)
 }
 
-func FindOneController(c *gin.Context) {
-	userID := c.Param("id")
+func FindOneController(ctx *gin.Context) {
+	userID := ctx.Param("id")
 
 	fetchedUser, err := FindOneService(userID)
 	if err != nil {
-		c.JSON(404, gin.H{"error": "Usuario no encontrado"})
+		switch {
+		case errors.Is(err, ErrInvalidUUID):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUUID.Error()})
+		case errors.Is(err, ErrUserNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": ErrUserNotFound.Error()})
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
+		}
 		return
 	}
 
-	c.JSON(200, fetchedUser)
+	ctx.JSON(http.StatusOK, fetchedUser)
 }
 
-func FindAllController(c *gin.Context) {
-
+func FindAllController(ctx *gin.Context) {
 	fetchedUsers, err := FindAllService()
 	if err != nil {
-		c.JSON(404, gin.H{"error": "Usuario no encontrado"})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
 		return
 	}
 
-	c.JSON(200, fetchedUsers)
+	ctx.JSON(http.StatusOK, fetchedUsers)
+}
+
+func UpdateOneController(ctx *gin.Context) {
+	ID := ctx.Param("id")
+
+	var user entities.User
+	if err := ctx.BindJSON(&user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrUserDataNotValid})
+		return
+	}
+	updatedUser, err := UpdateOneService(ID, user)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrInvalidUUID):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUUID.Error()})
+		case errors.Is(err, ErrUserNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": ErrUserNotFound.Error()})
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, updatedUser)
+}
+
+func DeleteOneController(ctx *gin.Context) {
+	id := ctx.Param("id")
+	deletedUser, err := DeleteOneService(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, ErrInvalidUUID):
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": ErrInvalidUUID.Error()})
+		case errors.Is(err, ErrUserNotFound):
+			ctx.JSON(http.StatusNotFound, gin.H{"error": ErrUserNotFound.Error()})
+		default:
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": ErrInternalServer.Error()})
+		}
+		return
+	}
+
+	ctx.JSON(http.StatusOK, deletedUser)
 }
