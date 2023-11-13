@@ -37,7 +37,7 @@ func NewUserRepository(db repository.Database) repository.UserRepository {
 	}
 }
 
-func (u userRepository) Insert(user dto.UserDTO) error {
+func (u userRepository) Create(user dto.UserDTO) error {
 	result, err := u.db.GetDB().Exec(
 		insertUserStatement,
 		user.UserName,

@@ -3,12 +3,13 @@ package controller
 import (
 	"net/http"
 
+	"users-service/internal/core/common/router"
+	"users-service/internal/core/entity/error_code"
+	"users-service/internal/core/model/request"
+	"users-service/internal/core/model/response"
+	"users-service/internal/core/port/service"
+
 	"github.com/gin-gonic/gin"
-	"user-service/internal/core/common/router"
-	"user-service/internal/core/entity/error_code"
-	"user-service/internal/core/model/request"
-	"user-service/internal/core/model/response"
-	"user-service/internal/core/port/service"
 )
 
 var (
@@ -51,8 +52,8 @@ func (u UserController) signUp(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func (u UserController) parseRequest(ctx *gin.Context) (*request.SignUpRequest, error) {
-	var req request.SignUpRequest
+func (u UserController) parseRequest(ctx *gin.Context) (*request.SignUp, error) {
+	var req request.SignUp
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		return nil, err
 	}

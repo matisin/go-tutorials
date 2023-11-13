@@ -6,7 +6,7 @@ import (
 
 	"users-service/internal/core/port/repository"
 
-	config "users-service/conf"
+	"users-service/internal/infra/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"time"
 
+	"users-service/internal/infra/config"
+
 	"github.com/gin-gonic/gin"
-	"user-service/internal/infra/config"
 )
 
 const defaultHost = "0.0.0.0"
@@ -23,7 +24,7 @@ type httpServer struct {
 	server *http.Server
 }
 
-func NewHttpServer(router *gin.Engine, config config.HttpServerConfig) HttpServer {
+func NewHttpServer(router *gin.Engine, config config.HttpConfig) HttpServer {
 	return &httpServer{
 		Port: config.Port,
 		server: &http.Server{

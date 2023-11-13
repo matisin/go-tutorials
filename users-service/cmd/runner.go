@@ -6,11 +6,11 @@ import (
 	"os/signal"
 	"syscall"
 
-	"user-service/internal/controller"
-	"user-service/internal/core/server"
-	"user-service/internal/core/service"
-	"user-service/internal/infra/config"
-	"user-service/internal/infra/repository"
+	"users-service/internal/controller"
+	"users-service/internal/core/server"
+	"users-service/internal/core/service"
+	"users-service/internal/infra/config"
+	"users-service/internal/infra/repository"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +37,7 @@ func main() {
 	// Create the HTTP server
 	httpServer := server.NewHttpServer(
 		instance,
-		config.HttpServerConfig{
+		config.HttpConfig{
 			Port: 8000,
 		},
 	)
