@@ -4,7 +4,24 @@ import (
 	"os"
 )
 
-var (
+type struct DB {
+	Host string
+	User string
+	Password string
+	Name string
+	Port string
+	SslMode string
+}
+
+type struc Config {
+	Database DB
+}
+
+const Config{
+	
+}
+
+const (
 	// Configurable variables
 	AppPort          = getEnv("APP_PORT", "8080")
 	DatabaseHost     = getEnv("DB_HOST", "localhost")

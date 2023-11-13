@@ -20,5 +20,7 @@ func main() {
 	users.RegisterRoutes(r)
 	geographic.RegisterRoutes(r)
 
+	module.RegisterDomain("users", r)
+
 	r.Run(":" + config.AppPort)
 }
