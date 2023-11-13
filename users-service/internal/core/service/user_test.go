@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"testing"
 
 	"users-service/internal/core/entity/error_code"
@@ -9,25 +8,57 @@ import (
 	"users-service/internal/core/model/response"
 )
 
-// Define a mock UserRepository for testing
-// type mockUserRepository struct{}
+var (
+	UserRepo    = &mockUserRepository{}
+	UserService = NewUserService(UserRepo)
+)
 
-// func (m *mockUserRepository) Insert(user dto.UserDTO) error {
-// 	// Simulate a duplicate user case
-// 	if user.UserName == "test_user" {
-// 		return repository.DuplicateUser
-// 	}
+func TestUserService_GetUser(t *testing.T) {
+	UserRepo.RestartData()
 
-// 	// Simulate successful insertion
-// 	return nil
-// }
+	UserService.SignUp(&request.SignUp{
+		Name:           "Pedro",
+		Lastname:       "Perez",
+		Mail:           "pedro_perez@gmail.com",
+		State:          "APR",
+		Identification: "182596086",
+		Phone:          "+56987334383",
+	})
+
+	UserService.SignUp(&request.SignUp{
+		Name:           "Juan",
+		Lastname:       "Perez",
+		Mail:           "juan_perez@gmail.com",
+		State:          "APR",
+		Identification: "182596087",
+		Phone:          "+56987334383",
+	})
+
+	var uuid string
+	for key, _ := range UserRepo.Data {
+		uuid = key
+		break
+	}
+
+	req := &request.GetUser{
+		UserId: uuid,
+	}
+
+	res := UserService.GetUser(req)
+	if !res.Status {
+		t.Errorf("expected status to be true, got false")
+	}
+
+	data := res.Data.(response.GetUserData)
+	if data.ID == "" {
+		t.Errorf("expected non-empty display name, got empty")
+	}
+
+}
 
 func TestUserService_SignUp_Success(t *testing.T) {
-	// Create a mock UserRepository for testing
-	userRepo := &mockUserRepository{}
-
-	// Create the UserService using the mock UserRepository
-	userService := NewUserService(userRepo)
+	// Restart DB
+	UserRepo.RestartData()
 
 	// Test case: Successful signup
 	req := &request.SignUp{
@@ -39,8 +70,7 @@ func TestUserService_SignUp_Success(t *testing.T) {
 		Phone:          "+56987334383",
 	}
 
-	res := userService.SignUp(req)
-	log.Println(res)
+	res := UserService.SignUp(req)
 	if !res.Status {
 		t.Errorf("expected status to be true, got false")
 	}
@@ -52,12 +82,8 @@ func TestUserService_SignUp_Success(t *testing.T) {
 }
 
 func TestUserService_SignUp_DuplicateUser(t *testing.T) {
-	// Create a mock UserRepository for testing
-	userRepo := &mockUserRepository{}
-
-	// Create the UserService using the mock UserRepository
-	userService := NewUserService(userRepo)
-
+	// Create a mock User for testing
+	UserRepo.RestartData()
 	// Test case: Successful signup
 	req := &request.SignUp{
 		Name:           "Pedro",
@@ -68,7 +94,7 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 		Phone:          "+56987334383",
 	}
 
-	res := userService.SignUp(req)
+	res := UserService.SignUp(req)
 	if !res.Status {
 		t.Errorf("expected status to be true, got false")
 	}
@@ -82,18 +108,19 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 		Phone:          "+56987334383",
 	}
 
-	res = userService.SignUp(req)
+	res = UserService.SignUp(req)
 
 	if res.ErrorCode != error_code.MailAlreadyExists {
 		t.Errorf("expected error code to be MailAlreadyExists, got %s", res.ErrorCode)
 	}
+
 }
 
 // func TestUserService_SignUp_InvalidUsername(t *testing.T) {
-// 	// Create a mock UserRepository for testing
+// 	// Create a mock User for testing
 // 	userRepo := &mockUserRepository{}
 
-// 	// Create the UserService using the mock UserRepository
+// 	// Create the UserService using the mock User
 // 	userService := NewUserService(userRepo)
 
 // 	// Test case: Invalid request with empty username
@@ -117,10 +144,10 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 // }
 
 // func TestUserService_SignUp_InvalidPassword(t *testing.T) {
-// 	// Create a mock UserRepository for testing
+// 	// Create a mock User for testing
 // 	userRepo := &mockUserRepository{}
 
-// 	// Create the UserService using the mock UserRepository
+// 	// Create the UserService using the mock User
 // 	userService := NewUserService(userRepo)
 
 // 	// Test case: Invalid request with empty password
@@ -139,10 +166,10 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 // }
 
 // func TestUserService_SignUp_DuplicateUser(t *testing.T) {
-// 	// Create a mock UserRepository for testing
+// 	// Create a mock User for testing
 // 	userRepo := &mockUserRepository{}
 
-// 	// Create the UserService using the mock UserRepository
+// 	// Create the UserService using the mock User
 // 	userService := NewUserService(userRepo)
 
 // 	// Test case: Duplicate user

@@ -15,5 +15,5 @@ type UserService interface {
 	// CheckUserExists(request *request.CheckUserExists)
 	// GetAvailableRoutes(request *request.GetAvailableRoutes)
 	// ChangePassword(request *request.ChangePassword)
-	// GetUser(request *request.GetUser) *response.Response
+	GetUser(request *request.GetUser) *response.Response
 }

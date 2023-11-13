@@ -9,11 +9,12 @@ var (
 	ErrDuplicateUser           = errors.New("duplicate user")
 	ErrDuplicateMail           = errors.New("duplicate mail")
 	ErrDuplicateIdentification = errors.New("duplicate identification")
+	ErrNotFound                = errors.New("user not found")
 )
 
-type UserRepository interface {
-	Create(user dto.User) error
-	// Read(id string) error
+type User interface {
+	Create(user dto.User) (string, error)
+	ReadOne(id string) (dto.User, error)
 	// Update(id string, user dto.User) error
 	// Delete(id string) error
 }

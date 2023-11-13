@@ -15,13 +15,31 @@ const (
 )
 
 type userService struct {
-	userRepo repository.UserRepository
+	userRepo repository.User
 }
 
-func NewUserService(userRepo repository.UserRepository) service.UserService {
+func NewUserService(userRepo repository.User) service.UserService {
 	return &userService{
 		userRepo: userRepo,
 	}
+}
+
+func (u userService) GetUser(request *request.GetUser) *response.Response {
+
+	user, _ := u.userRepo.ReadOne(request.UserId)
+
+	// create data response
+	GetUserData := response.GetUserData{
+		Name:           user.Name,
+		Lastname:       user.Lastname,
+		Mail:           user.Mail,
+		State:          user.State,
+		Identification: user.Identification,
+		Phone:          user.Phone,
+		ID:             user.ID.String(),
+	}
+
+	return u.createSuccessResponse(GetUserData)
 }
 
 func (u userService) SignUp(request *request.SignUp) *response.Response {
@@ -47,7 +65,7 @@ func (u userService) SignUp(request *request.SignUp) *response.Response {
 	}
 
 	// save a new user
-	err := u.userRepo.Create(userDTO)
+	_, err := u.userRepo.Create(userDTO)
 	if err != nil {
 		if err == repository.ErrDuplicateMail {
 			return u.createFailedResponse(error_code.MailAlreadyExists, err.Error())
@@ -74,7 +92,7 @@ func (u userService) createFailedResponse(
 	}
 }
 
-func (u userService) createSuccessResponse(data response.SignUpData) *response.Response {
+func (u userService) createSuccessResponse(data interface{}) *response.Response {
 	return &response.Response{
 		Data:         data,
 		ErrorCode:    error_code.Success,

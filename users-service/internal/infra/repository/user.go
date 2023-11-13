@@ -27,17 +27,17 @@ const (
 		"VALUES (?, ?, ?, ?, ?)"
 )
 
-type userRepository struct {
+type User struct {
 	db repository.Database
 }
 
-func NewUserRepository(db repository.Database) repository.UserRepository {
-	return &userRepository{
+func NewUserRepository(db repository.Database) repository.User {
+	return &User{
 		db: db,
 	}
 }
 
-func (u userRepository) Create(user dto.UserDTO) error {
+func (u User) Create(user dto.UserDTO) error {
 	result, err := u.db.GetDB().Exec(
 		insertUserStatement,
 		user.UserName,
