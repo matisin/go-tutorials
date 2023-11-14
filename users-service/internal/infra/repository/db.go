@@ -8,8 +8,12 @@ import (
 
 	"users-service/internal/infra/config"
 
+	"github.com/golang-migrate/migrate/v4"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	postgresDriver "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 type database struct {
@@ -53,9 +57,35 @@ func newDatabase() (*gorm.DB, error) {
 }
 
 func (db database) Close() error {
-	return db.Close()
+	sqlDB, err := db.DB.DB()
+	if err != nil {
+		return err
+	}
+	err = sqlDB.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db database) GetDB() *gorm.DB {
 	return db.DB
+}
+
+func (db database) RunMigrations() error {
+	sqlDB, err := db.DB.DB()
+	if err != nil {
+		return err
+	}
+	driver, err := postgresDriver.WithInstance(sqlDB, &postgresDriver.Config{})
+	if err != nil {
+		return err
+	}
+	m, err := migrate.NewWithDatabaseInstance("file:///"+config.DB.MigrationsPath, "postgres", driver)
+	if err != nil {
+		return err
+	}
+
+	m.Up()
+	return nil
 }

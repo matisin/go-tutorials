@@ -4,8 +4,7 @@ type SignUp struct {
 	Name           string `json:"name"`
 	Lastname       string `json:"last_name"`
 	Mail           string `json:"mail"`
-	State          string `json:"state"`
-	Identification string `json:"indenfitication"`
+	Identification string `json:"identification"`
 	Phone          string `json:"phone"`
 }
 

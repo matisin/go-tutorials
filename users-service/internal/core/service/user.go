@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"users-service/internal/core/dto"
 	"users-service/internal/core/entity/error_code"
 	"users-service/internal/core/model/request"
@@ -12,6 +13,7 @@ import (
 const (
 	invalidUserNameErrMsg = "invalid username"
 	invalidPasswordErrMsg = "invalid password"
+	noParamsErrMsg        = "there's no params for query"
 )
 
 type userService struct {
@@ -22,6 +24,38 @@ func NewUserService(userRepo repository.User) service.UserService {
 	return &userService{
 		userRepo: userRepo,
 	}
+}
+
+func (u userService) CheckUserExists(request *request.CheckUserExists) *response.Response {
+	var params map[string]string
+	selects := []string{}
+	joins := []string{}
+	orders := []string{"name"}
+
+	switch {
+	case request.Identification != "":
+		params = map[string]string{
+			"identification = ?": request.Identification,
+		}
+	case request.Mail != "":
+		params = map[string]string{
+			"mail = ?": request.Identification,
+		}
+	case request.Phone != "":
+		params = map[string]string{
+			"phone = ?": request.Identification,
+		}
+	default:
+		return u.createFailedResponse(error_code.InvalidRequest, noParamsErrMsg)
+	}
+	users, _ := u.userRepo.Read(params, selects, orders, joins)
+
+	log.Println(users)
+
+	CheckUserExistData := response.CheckUserExistData{
+		Exists: len(users) == 0,
+	}
+	return u.createSuccessResponse(CheckUserExistData)
 }
 
 func (u userService) GetUser(request *request.GetUser) *response.Response {
@@ -57,7 +91,6 @@ func (u userService) SignUp(request *request.SignUp) *response.Response {
 		Name:           request.Name,
 		Lastname:       request.Lastname,
 		Mail:           request.Mail,
-		State:          request.State,
 		Identification: request.Identification,
 		Phone:          request.Phone,
 		// CreatedAt:   currentTime,
@@ -65,9 +98,9 @@ func (u userService) SignUp(request *request.SignUp) *response.Response {
 	}
 
 	// save a new user
-	_, err := u.userRepo.Create(userDTO)
+	err := u.userRepo.Create(userDTO)
 	if err != nil {
-		if err == repository.ErrDuplicateMail {
+		if err == repository.ErrDuplicatedEntry {
 			return u.createFailedResponse(error_code.MailAlreadyExists, err.Error())
 		}
 

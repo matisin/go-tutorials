@@ -2,67 +2,84 @@ package repository
 
 import (
 	"errors"
-	"strings"
 
 	"users-service/internal/core/dto"
 	"users-service/internal/core/port/repository"
+
+	"gorm.io/gorm"
 )
 
-const (
-	duplicateEntryMsg = "Duplicate entry"
-	numberRowInserted = 1
-)
-
-var (
-	insertUserErr = errors.New("failed to insert user")
-)
-
-const (
-	insertUserStatement = "INSERT INTO User_test( " +
-		"`username`, " +
-		"`password`, " +
-		"`display_name`, " +
-		"`created_at`," +
-		"`updated_at`) " +
-		"VALUES (?, ?, ?, ?, ?)"
-)
-
-type User struct {
+type UserRepository struct {
 	db repository.Database
 }
 
 func NewUserRepository(db repository.Database) repository.User {
-	return &User{
+	return &UserRepository{
 		db: db,
 	}
 }
 
-func (u User) Create(user dto.UserDTO) error {
-	result, err := u.db.GetDB().Exec(
-		insertUserStatement,
-		user.UserName,
-		user.Password,
-		user.DisplayName,
-		user.CreatedAt,
-		user.UpdatedAt,
-	)
+func (repo UserRepository) Read(
+	params map[string]string,
+	selects []string,
+	orders []string,
+	joins []string,
+) ([]dto.User, error) {
+	db := repo.db.GetDB()
 
-	if err != nil {
-		if strings.Contains(err.Error(), duplicateEntryMsg) {
-			return repository.DuplicateUser
-		}
-
-		return err
+	// Aplicar los parámetros de la consulta
+	for key, value := range params {
+		db = db.Where(key, value)
 	}
 
-	numRow, err := result.RowsAffected()
-	if err != nil {
-		return err
+	// Aplicar los campos select
+	if len(selects) > 0 {
+		db = db.Select(selects)
 	}
 
-	if numRow != numberRowInserted {
-		return insertUserErr
+	// Aplicar ordenamiento
+	for _, order := range orders {
+		db = db.Order(order)
+	}
+
+	// Aplicar joins
+	for _, join := range joins {
+		db = db.Joins(join)
+	}
+
+	var users []dto.User
+	result := db.Find(&users)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return users, nil
+}
+
+func (repo UserRepository) Create(user dto.User) error {
+	db := repo.db.GetDB()
+	result := db.Create(&user)
+
+	if result.Error != nil {
+		return repository.ErrDuplicatedEntry
 	}
 
 	return nil
+}
+
+func (repo UserRepository) ReadOne(id string) (dto.User, error) {
+	var user dto.User
+	db := repo.db.GetDB()
+	result := db.First(&user, "id = ?", id)
+
+	if result.Error != nil {
+		switch {
+		case errors.Is(result.Error, gorm.ErrRecordNotFound):
+			return dto.User{}, repository.ErrNotFound
+		default:
+			return dto.User{}, repository.ErrInternalServer
+		}
+	}
+	return user, nil
 }

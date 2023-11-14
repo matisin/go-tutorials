@@ -9,4 +9,5 @@ import (
 type Database interface {
 	io.Closer
 	GetDB() *gorm.DB
+	RunMigrations() error
 }

@@ -26,6 +26,13 @@ func main() {
 		log.Fatalf("failed to new database err=%s\n", err.Error())
 	}
 
+	err = db.RunMigrations()
+	if err != nil {
+		log.Fatalf("failed to run migrations err=%s\n", err.Error())
+	} else {
+		log.Println("Migrations run succesful")
+	}
+
 	// Create the User Repository, Service and Controller
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)

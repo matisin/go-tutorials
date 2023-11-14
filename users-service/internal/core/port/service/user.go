@@ -12,7 +12,7 @@ type UserService interface {
 	// Login(request *request.Login) *response.Response
 	// StartContactValidation(request *request.StartContactValidation)
 	// ValidateContact(request *request.ValidateContact)
-	// CheckUserExists(request *request.CheckUserExists)
+	CheckUserExists(request *request.CheckUserExists) *response.Response
 	// GetAvailableRoutes(request *request.GetAvailableRoutes)
 	// ChangePassword(request *request.ChangePassword)
 	GetUser(request *request.GetUser) *response.Response

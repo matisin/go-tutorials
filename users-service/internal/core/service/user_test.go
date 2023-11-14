@@ -20,7 +20,6 @@ func TestUserService_GetUser(t *testing.T) {
 		Name:           "Pedro",
 		Lastname:       "Perez",
 		Mail:           "pedro_perez@gmail.com",
-		State:          "APR",
 		Identification: "182596086",
 		Phone:          "+56987334383",
 	})
@@ -29,13 +28,12 @@ func TestUserService_GetUser(t *testing.T) {
 		Name:           "Juan",
 		Lastname:       "Perez",
 		Mail:           "juan_perez@gmail.com",
-		State:          "APR",
 		Identification: "182596087",
 		Phone:          "+56987334383",
 	})
 
 	var uuid string
-	for key, _ := range UserRepo.Data {
+	for key := range UserRepo.Data {
 		uuid = key
 		break
 	}
@@ -65,7 +63,6 @@ func TestUserService_SignUp_Success(t *testing.T) {
 		Name:           "Pedro",
 		Lastname:       "Perez",
 		Mail:           "pedro_perez@gmail.com",
-		State:          "APR",
 		Identification: "182596086",
 		Phone:          "+56987334383",
 	}
@@ -89,7 +86,6 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 		Name:           "Pedro",
 		Lastname:       "Perez",
 		Mail:           "pedro_perez@gmail.com",
-		State:          "APR",
 		Identification: "182596086",
 		Phone:          "+56987334383",
 	}
@@ -103,7 +99,6 @@ func TestUserService_SignUp_DuplicateUser(t *testing.T) {
 		Name:           "Pedro",
 		Lastname:       "Perez",
 		Mail:           "pedro_perez@gmail.com",
-		State:          "APR",
 		Identification: "182596086",
 		Phone:          "+56987334383",
 	}

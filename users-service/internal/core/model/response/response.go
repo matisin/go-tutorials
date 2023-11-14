@@ -15,10 +15,14 @@ type SignUpData struct {
 
 type GetUserData struct {
 	Name           string `json:"name"`
-	Lastname       string `json:"last_name"`
+	Lastname       string `json:"lastname"`
 	Mail           string `json:"mail"`
 	State          string `json:"state"`
-	Identification string `json:"idenfitication"`
+	Identification string `json:"identification"`
 	Phone          string `json:"phone"`
 	ID             string `json:"id"`
+}
+
+type CheckUserExistData struct {
+	Exists bool `json:"exists"`
 }

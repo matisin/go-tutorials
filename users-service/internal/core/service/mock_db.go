@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"users-service/internal/core/dto"
 	"users-service/internal/core/port/repository"
 
@@ -12,17 +11,14 @@ type mockUserRepository struct {
 	Data map[string]dto.User
 }
 
-func (m *mockUserRepository) Create(user dto.User) (string, error) {
+func (m *mockUserRepository) Create(user dto.User) error {
 	// Simulate a duplicate user case
 	if m.Data == nil {
 		m.Data = make(map[string]dto.User)
 	}
 	for _, element := range m.Data {
-		if element.Mail == user.Mail {
-			return "", repository.ErrDuplicateMail
-		}
-		if element.Identification == user.Identification {
-			return "", repository.ErrDuplicateIdentification
+		if element.Mail == user.Mail || element.Identification == user.Identification {
+			return repository.ErrDuplicatedEntry
 		}
 	}
 
@@ -30,8 +26,7 @@ func (m *mockUserRepository) Create(user dto.User) (string, error) {
 	strUUID := uuid.String()
 	user.ID = uuid
 	m.Data[strUUID] = user
-	log.Println(strUUID)
-	return strUUID, nil
+	return nil
 }
 
 func (m *mockUserRepository) ReadOne(id string) (dto.User, error) {

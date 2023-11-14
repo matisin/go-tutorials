@@ -3,7 +3,6 @@ package controller
 import (
 	"net/http"
 
-	"users-service/internal/core/common/router"
 	"users-service/internal/core/entity/error_code"
 	"users-service/internal/core/model/request"
 	"users-service/internal/core/model/response"
@@ -37,8 +36,10 @@ func NewUserController(
 }
 
 func (u UserController) InitRouter() {
-	api := u.gin.Group("/api/v1")
-	router.Post(api, "/signup", u.signUp)
+	api := u.gin.Group("/api/v1/users")
+	api.GET("/id/:id", u.getUser)
+	api.POST("/signup", u.signUp)
+	api.GET("/check_users", u.checkUsers)
 }
 
 func (u UserController) signUp(c *gin.Context) {
@@ -59,4 +60,31 @@ func (u UserController) parseRequest(ctx *gin.Context) (*request.SignUp, error) 
 	}
 
 	return &req, nil
+}
+
+func (u UserController) getUser(c *gin.Context) {
+	id := c.Param("id")
+	req := request.GetUser{UserId: id}
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusOK, &invalidRequestResponse)
+	// 	return
+	// }
+
+	resp := u.userService.GetUser(&req)
+	c.JSON(http.StatusOK, resp)
+}
+
+func (u UserController) checkUsers(c *gin.Context) {
+	var req request.CheckUserExists
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusOK, &invalidRequestResponse)
+		return
+	}
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	c.AbortWithStatusJSON(http.StatusOK, &invalidRequestResponse)
+	// 	return
+	// }
+
+	resp := u.userService.CheckUserExists(&req)
+	c.JSON(http.StatusOK, resp)
 }
