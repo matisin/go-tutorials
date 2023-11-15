@@ -1,1 +1,1 @@
-CREATE DATABASE local;
+CREATE DATABASE users;

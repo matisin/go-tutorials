@@ -22,6 +22,22 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  users-service:
+    env_file:
+      - .env.local
+      - ./users-service/.env.local
+    build:
+      context: ./users-service
+      target: prd
+      dockerfile: Dockerfile
+    volumes:
+      - ./users-service/cmd/:/workspace/cmd
+      - ./users-service/conf/:/workspace/conf
+      - ./users-service/internal/:/workspace/internal
+      - ./users-service/migrations/:/workspace/migrations
+    restart: always
+    depends_on: 
+      - db
 
   # orcherstator-api:
   # # ports:
